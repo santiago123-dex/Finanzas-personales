@@ -19,10 +19,10 @@ export default function GlobalError({
         style={{
           margin: 0,
           display: "flex",
-          minHeight: "100vh",
+          minHeight: "100dvh",
           alignItems: "center",
           justifyContent: "center",
-          background: "#F8FAFC",
+          background: "#fafafa",
           fontFamily: "system-ui, -apple-system, sans-serif",
           padding: "2rem",
           boxSizing: "border-box",
@@ -35,19 +35,20 @@ export default function GlobalError({
               fontSize: 20,
               fontWeight: 700,
               margin: "0 0 8px",
-              color: "#0F172A",
+              color: "#111111",
             }}
           >
             Algo salió mal
           </h1>
-          <p style={{ fontSize: 14, color: "#64748B", margin: "0 0 16px", lineHeight: 1.5 }}>
+          <p style={{ fontSize: 14, color: "#666666", margin: "0 0 16px", lineHeight: 1.5 }}>
             Ocurrió un error inesperado. Reiniciá la app y si vuelve a pasar, fijate el
             error de abajo.
           </p>
           <pre
             style={{
-              background: "#FEE2E2",
-              color: "#991B1B",
+              background: "#f4f4f5",
+              color: "#444444",
+              border: "1px solid #e4e4e7",
               padding: "12px",
               borderRadius: 8,
               fontSize: 12,
@@ -66,7 +67,7 @@ export default function GlobalError({
               padding: "12px",
               borderRadius: 8,
               border: "none",
-              background: "#0F172A",
+              background: "#111111",
               color: "#fff",
               fontSize: 14,
               fontWeight: 600,

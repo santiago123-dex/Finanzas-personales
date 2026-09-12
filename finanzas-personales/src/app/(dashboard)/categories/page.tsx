@@ -20,9 +20,9 @@ const EMOJI_OPTIONS = [
 ];
 
 const COLOR_OPTIONS = [
-  "#0D9488", "#059669", "#DC2626", "#EA580C", "#CA8A04",
-  "#2563EB", "#7C3AED", "#DB2777", "#64748B", "#0891B2",
-  "#16A34A", "#B91C1C", "#9333EA", "#D97706", "#0F766E",
+  "#111111", "#262626", "#3D3D3D", "#525252", "#666666",
+  "#7A7A7A", "#8F8F8F", "#A3A3A3", "#1A1A1A", "#2E2E2E",
+  "#454545", "#595959", "#6E6E6E", "#828282", "#969696",
 ];
 
 export default function CategoriesPage() {
@@ -30,7 +30,7 @@ export default function CategoriesPage() {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("📦");
-  const [color, setColor] = useState("#0D9488");
+  const [color, setColor] = useState("#262626");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function CategoriesPage() {
       setCategories(updated);
       setName("");
       setIcon("📦");
-      setColor("#0D9488");
+      setColor("#262626");
       setShowForm(false);
     } catch (error) {
       console.error(error);
@@ -181,10 +181,7 @@ export default function CategoriesPage() {
               }`}
             >
               <div className="flex min-w-0 items-center gap-3">
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg"
-                  style={{ backgroundColor: cat.color + "30" }}
-                >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-lg">
                   <span aria-hidden>{cat.icon}</span>
                 </div>
                 <div className="min-w-0">

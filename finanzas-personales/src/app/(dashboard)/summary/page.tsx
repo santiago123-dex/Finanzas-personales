@@ -26,34 +26,32 @@ function PieChart({ data }: { data: CategorySummary[] }) {
   const total = data.reduce((sum, d) => sum + d.total, 0);
   if (total === 0) return null;
 
-  let cumulativePercent = 0;
   const sorted = [...data].sort((a, b) => b.total - a.total);
+  const percents = sorted.map((item) => (item.total / total) * 100);
+  const segments = sorted.map((item, i) => ({
+    item,
+    percent: percents[i],
+    offset: percents.slice(0, i).reduce((sum, p) => sum + p, 0),
+  }));
 
   return (
     <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
       <div className="relative h-40 w-40 shrink-0 sm:h-36 sm:w-36">
-        <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
-          {sorted.map((item, i) => {
-            const percent = (item.total / total) * 100;
-            const strokeDasharray = `${percent} ${100 - percent}`;
-            const strokeDashoffset = -cumulativePercent;
-            cumulativePercent += percent;
-
-            return (
-              <circle
-                key={i}
-                cx="18"
-                cy="18"
-                r="15.915"
-                fill="none"
-                stroke={item.color}
-                strokeWidth="3.2"
-                strokeLinecap="round"
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={strokeDashoffset}
-              />
-            );
-          })}
+        <svg viewBox="0 0 36 36" className="cat-swatch h-full w-full -rotate-90">
+          {segments.map(({ item, percent, offset }, i) => (
+            <circle
+              key={i}
+              cx="18"
+              cy="18"
+              r="15.915"
+              fill="none"
+              stroke={item.color}
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              strokeDasharray={`${percent} ${100 - percent}`}
+              strokeDashoffset={-offset}
+            />
+          ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-[10px] text-muted-foreground">Total</span>
@@ -66,7 +64,7 @@ function PieChart({ data }: { data: CategorySummary[] }) {
         {sorted.map((item) => (
           <div key={item.name} className="flex items-center gap-2 text-xs sm:text-sm">
             <div
-              className="h-2.5 w-2.5 shrink-0 rounded-full"
+              className="cat-swatch h-2.5 w-2.5 shrink-0 rounded-full"
               style={{ backgroundColor: item.color }}
             />
             <span className="truncate text-muted-foreground">
@@ -88,11 +86,23 @@ export default function SummaryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     getMonthlySummary(currentDate.getFullYear(), currentDate.getMonth() + 1)
-      .then(setData)
-      .finally(() => setLoading(false));
+      .then((result) => {
+        if (!cancelled) setData(result);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [currentDate]);
+
+  function changeMonth(next: Date) {
+    setLoading(true);
+    setCurrentDate(next);
+  }
 
   const maxCategory = data
     ? Math.max(...data.expensesByCategory.map((c) => c.total), 0)
@@ -102,7 +112,7 @@ export default function SummaryPage() {
     <PageShell wide>
       <div className="animate-rise flex items-center justify-between rounded-2xl bg-card p-1.5 shadow-soft ring-1 ring-border/60">
         <button
-          onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+          onClick={() => changeMonth(subMonths(currentDate, 1))}
           className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           aria-label="Mes anterior"
         >
@@ -115,7 +125,7 @@ export default function SummaryPage() {
           <p className="text-[11px] text-muted-foreground">Resumen mensual</p>
         </div>
         <button
-          onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+          onClick={() => changeMonth(addMonths(currentDate, 1))}
           className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           aria-label="Mes siguiente"
         >
@@ -213,7 +223,7 @@ export default function SummaryPage() {
                         </div>
                         <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full rounded-full"
+                            className="cat-swatch h-full rounded-full"
                             style={{
                               width: `${
                                 maxCategory > 0

@@ -106,10 +106,7 @@ export default async function HomePage() {
                     <div key={cat.name} className="space-y-1.5">
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-2.5">
-                          <div
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm"
-                            style={{ backgroundColor: cat.color + "26" }}
-                          >
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-sm">
                             <span aria-hidden>{cat.icon}</span>
                           </div>
                           <span className="truncate text-sm font-medium">
@@ -122,7 +119,7 @@ export default async function HomePage() {
                       </div>
                       <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full transition-[width] duration-300"
+                          className="cat-swatch h-full rounded-full transition-[width] duration-300"
                           style={{
                             width: `${maxCat > 0 ? (cat.total / maxCat) * 100 : 0}%`,
                             backgroundColor: cat.color,
@@ -169,10 +166,7 @@ export default async function HomePage() {
                       className="flex items-center justify-between gap-3 rounded-xl px-1 py-2.5 transition-colors hover:bg-muted/50"
                     >
                       <div className="flex min-w-0 items-center gap-3">
-                        <div
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base sm:h-10 sm:w-10"
-                          style={{ backgroundColor: cat.color + "26" }}
-                        >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted text-base sm:h-10 sm:w-10">
                           <span aria-hidden>{cat.icon}</span>
                         </div>
                         <div className="min-w-0">

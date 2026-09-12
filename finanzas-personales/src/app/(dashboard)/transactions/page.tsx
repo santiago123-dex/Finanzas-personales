@@ -84,10 +84,7 @@ export default async function TransactionsPage() {
                         }`}
                       >
                         <div className="flex min-w-0 items-center gap-3">
-                          <div
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg"
-                            style={{ backgroundColor: cat.color + "26" }}
-                          >
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-lg">
                             <span aria-hidden>{cat.icon}</span>
                           </div>
                           <div className="min-w-0">
