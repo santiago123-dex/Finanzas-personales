@@ -255,6 +255,116 @@
   }
 }
 
+/* Auth — monochrome ledger entry (scoped; does not affect dashboard) */
+.auth-mono {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.13 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.13 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.42 0 0);
+  --border: oklch(0.88 0 0);
+  --input: oklch(0.88 0 0);
+  --ring: oklch(0.13 0 0);
+  --primary: oklch(0.13 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --destructive: oklch(0.35 0 0);
+  --shadow-soft: none;
+  --shadow-lift: none;
+  background-image: none;
+  color-scheme: light;
+}
+
+.auth-mono ::selection {
+  background: oklch(0.13 0 0);
+  color: oklch(1 0 0);
+}
+
+.auth-mono input,
+.auth-mono textarea,
+.auth-mono select {
+  caret-color: oklch(0.13 0 0);
+}
+
+.auth-ledger-lines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 39px,
+    oklch(1 0 0 / 0.55) 39px,
+    oklch(1 0 0 / 0.55) 40px
+  );
+}
+
+.auth-field {
+  display: flex;
+  height: 3rem;
+  width: 100%;
+  border-radius: 0 !important;
+  border: 1px solid var(--input);
+  background: var(--background);
+  padding-inline: 0.875rem;
+  font-size: 1rem;
+  outline: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-snappy),
+    box-shadow var(--duration-fast) var(--ease-snappy);
+}
+
+.auth-field::placeholder {
+  color: color-mix(in oklch, var(--muted-foreground) 70%, transparent);
+}
+
+.auth-field:hover {
+  border-color: color-mix(in oklch, var(--foreground) 45%, var(--input));
+}
+
+.auth-field:focus-visible {
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 1px var(--foreground);
+}
+
+.auth-submit {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 !important;
+  background: var(--foreground);
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--background);
+  transition:
+    opacity var(--duration-fast) var(--ease-snappy),
+    transform var(--duration-fast) var(--ease-snappy);
+}
+
+.auth-submit:hover {
+  opacity: 0.88;
+}
+
+.auth-submit:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--foreground);
+}
+
+.auth-form-enter {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: rise var(--duration-slow) var(--ease-out-quart) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-form-enter {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 @layer utilities {
   .animate-rise {
     opacity: 0;
@@ -301,7 +411,8 @@
     scroll-behavior: auto !important;
   }
   .animate-rise,
-  .animate-scale-in {
+  .animate-scale-in,
+  .auth-form-enter {
     opacity: 1;
     transform: none;
     animation: none;
