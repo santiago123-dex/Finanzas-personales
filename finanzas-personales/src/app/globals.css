@@ -1,0 +1,330 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Acceleration curves */
+  --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-med: 200ms;
+  --duration-slow: 300ms;
+  --duration-drawer: 400ms;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --font-display: var(--font-instrument), ui-serif, Georgia, serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-income: var(--income);
+  --color-income-foreground: var(--income-foreground);
+  --color-expense: var(--expense);
+  --color-expense-foreground: var(--expense-foreground);
+  --color-surface: var(--surface);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+  Calm ledger — cool sage paper, deep teal primary,
+  semantic income/expense. Operate-mode product UI.
+*/
+:root {
+  --background: oklch(0.975 0.008 165);
+  --foreground: oklch(0.22 0.025 195);
+  --surface: oklch(0.99 0.004 165);
+  --card: oklch(0.995 0.003 165);
+  --card-foreground: oklch(0.22 0.025 195);
+  --popover: oklch(0.995 0.003 165);
+  --popover-foreground: oklch(0.22 0.025 195);
+  --primary: oklch(0.42 0.09 195);
+  --primary-foreground: oklch(0.98 0.01 165);
+  --secondary: oklch(0.94 0.015 165);
+  --secondary-foreground: oklch(0.28 0.03 195);
+  --muted: oklch(0.94 0.012 165);
+  --muted-foreground: oklch(0.48 0.02 195);
+  --accent: oklch(0.93 0.025 175);
+  --accent-foreground: oklch(0.28 0.04 195);
+  --destructive: oklch(0.55 0.2 25);
+  --income: oklch(0.48 0.12 155);
+  --income-foreground: oklch(0.98 0.01 155);
+  --expense: oklch(0.55 0.18 25);
+  --expense-foreground: oklch(0.98 0.01 25);
+  --border: oklch(0.88 0.015 165);
+  --input: oklch(0.9 0.012 165);
+  --ring: oklch(0.42 0.09 195);
+  --chart-1: oklch(0.55 0.12 195);
+  --chart-2: oklch(0.6 0.11 155);
+  --chart-3: oklch(0.65 0.1 85);
+  --chart-4: oklch(0.58 0.14 25);
+  --chart-5: oklch(0.5 0.08 280);
+  --radius: 0.875rem;
+  --sidebar: oklch(0.96 0.01 165);
+  --sidebar-foreground: oklch(0.22 0.025 195);
+  --sidebar-primary: oklch(0.42 0.09 195);
+  --sidebar-primary-foreground: oklch(0.98 0.01 165);
+  --sidebar-accent: oklch(0.93 0.02 175);
+  --sidebar-accent-foreground: oklch(0.28 0.04 195);
+  --sidebar-border: oklch(0.88 0.015 165);
+  --sidebar-ring: oklch(0.42 0.09 195);
+  --shadow-soft: 0 1px 2px oklch(0.3 0.02 195 / 0.04),
+    0 4px 12px oklch(0.3 0.02 195 / 0.06);
+  --shadow-lift: 0 2px 4px oklch(0.3 0.02 195 / 0.05),
+    0 8px 24px oklch(0.3 0.02 195 / 0.08);
+}
+
+.dark {
+  --background: oklch(0.16 0.018 195);
+  --foreground: oklch(0.95 0.01 165);
+  --surface: oklch(0.19 0.02 195);
+  --card: oklch(0.2 0.02 195);
+  --card-foreground: oklch(0.95 0.01 165);
+  --popover: oklch(0.2 0.02 195);
+  --popover-foreground: oklch(0.95 0.01 165);
+  --primary: oklch(0.72 0.08 185);
+  --primary-foreground: oklch(0.18 0.03 195);
+  --secondary: oklch(0.26 0.02 195);
+  --secondary-foreground: oklch(0.95 0.01 165);
+  --muted: oklch(0.26 0.02 195);
+  --muted-foreground: oklch(0.7 0.02 185);
+  --accent: oklch(0.28 0.03 185);
+  --accent-foreground: oklch(0.95 0.01 165);
+  --destructive: oklch(0.68 0.16 25);
+  --income: oklch(0.7 0.12 155);
+  --income-foreground: oklch(0.18 0.03 155);
+  --expense: oklch(0.7 0.14 25);
+  --expense-foreground: oklch(0.18 0.03 25);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.72 0.08 185);
+  --chart-1: oklch(0.7 0.1 185);
+  --chart-2: oklch(0.72 0.11 155);
+  --chart-3: oklch(0.75 0.1 85);
+  --chart-4: oklch(0.7 0.12 25);
+  --chart-5: oklch(0.65 0.08 280);
+  --sidebar: oklch(0.18 0.02 195);
+  --sidebar-foreground: oklch(0.95 0.01 165);
+  --sidebar-primary: oklch(0.72 0.08 185);
+  --sidebar-primary-foreground: oklch(0.18 0.03 195);
+  --sidebar-accent: oklch(0.26 0.025 185);
+  --sidebar-accent-foreground: oklch(0.95 0.01 165);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.08 185);
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.2), 0 4px 12px oklch(0 0 0 / 0.25);
+  --shadow-lift: 0 2px 4px oklch(0 0 0 / 0.25), 0 8px 24px oklch(0 0 0 / 0.35);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01" on, "cv11" on;
+    background-image: radial-gradient(
+      ellipse 120% 80% at 50% -20%,
+      color-mix(in oklch, var(--primary) 8%, transparent),
+      transparent 55%
+    );
+    background-attachment: fixed;
+  }
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  button {
+    touch-action: manipulation;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 28%, transparent);
+    color: var(--foreground);
+  }
+  input,
+  textarea,
+  select {
+    caret-color: var(--primary);
+    /* Prevent iOS Safari zoom on focus */
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    input,
+    textarea,
+    select {
+      font-size: inherit;
+    }
+  }
+  /* Tabular figures for money everywhere */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+  .text-balance-hero {
+    font-size: clamp(1.875rem, 4vw + 1rem, 3rem);
+    line-height: 1.1;
+  }
+}
+
+/* Soft card elevation utility */
+@layer utilities {
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-lift {
+    box-shadow: var(--shadow-lift);
+  }
+  .text-income {
+    color: var(--income);
+  }
+  .text-expense {
+    color: var(--expense);
+  }
+  .bg-income\/10 {
+    background-color: color-mix(in oklch, var(--income) 12%, transparent);
+  }
+  .bg-expense\/10 {
+    background-color: color-mix(in oklch, var(--expense) 12%, transparent);
+  }
+  .bg-surface {
+    background-color: var(--surface);
+  }
+}
+
+/* Press feedback */
+@media (hover: none), (pointer: coarse) {
+  button:not(:disabled):active,
+  [role="button"]:not(:disabled):active,
+  a[data-pressable]:active {
+    transform: scale(0.97);
+    transition:
+      transform var(--duration-fast) var(--ease-snappy),
+      opacity var(--duration-fast) ease;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:not(:disabled):active,
+  a[data-pressable]:active {
+    transform: scale(0.97);
+  }
+}
+
+@layer utilities {
+  .animate-rise {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: rise var(--duration-med) var(--ease-snappy) forwards;
+  }
+  .animate-scale-in {
+    opacity: 0;
+    transform: scale(0.97);
+    animation: scale-in var(--duration-fast) var(--ease-snappy) forwards;
+  }
+}
+
+@keyframes rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@layer base {
+  h1 {
+    letter-spacing: -0.025em;
+  }
+  h2 {
+    letter-spacing: -0.02em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-rise,
+  .animate-scale-in {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: var(--background);
+  }
+}
+
+/* Themed scrollbar for data lists */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent)
+      transparent;
+  }
+}
