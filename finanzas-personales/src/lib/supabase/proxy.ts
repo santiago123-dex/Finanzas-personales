@@ -37,6 +37,7 @@ export async function updateSession(request: NextRequest) {
   const isAuthPage =
     path.startsWith("/login") ||
     path.startsWith("/register") ||
+    path.startsWith("/verify") ||
     path.startsWith("/auth");
 
   if (!user && !isAuthPage) {
@@ -49,7 +50,12 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (user && (path.startsWith("/login") || path.startsWith("/register"))) {
+  if (
+    user &&
+    (path.startsWith("/login") ||
+      path.startsWith("/register") ||
+      path.startsWith("/verify"))
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     const redirectResponse = NextResponse.redirect(url);

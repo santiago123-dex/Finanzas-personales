@@ -24,6 +24,15 @@ export default async function LoginPage({
           >
             Registrate
           </Link>
+          <span className="mt-2 block">
+            ¿Te registraste y te falta el código?{" "}
+            <Link
+              href="/verify"
+              className="font-medium text-foreground underline decoration-foreground/25 underline-offset-4 transition-colors hover:decoration-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              Verificalo acá
+            </Link>
+          </span>
         </>
       }
     >
