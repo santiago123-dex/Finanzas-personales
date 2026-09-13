@@ -2,27 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { resendCode, verifyCode } from "@/app/actions/auth";
+import { PinInput } from "./pin-input";
 
 const CODE_LENGTH = 6;
 const RESEND_COOLDOWN_S = 30;
 
-function onlyDigits(value: string) {
-  return value.replace(/\D/g, "");
-}
-
 export function VerifyForm({ email }: { email: string }) {
   const [emailState, setEmailState] = useState(email);
-  const [digits, setDigits] = useState<string[]>(() =>
-    Array<string>(CODE_LENGTH).fill("")
-  );
+  const [code, setCode] = useState("");
   const [pending, setPending] = useState(false);
   const [cooldown, setCooldown] = useState(email ? RESEND_COOLDOWN_S : 0);
-  const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const submittedRef = useRef(false);
 
   const activeEmail = (email || emailState).trim();
-  const code = digits.join("");
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -33,64 +26,18 @@ export function VerifyForm({ email }: { email: string }) {
     return () => clearInterval(id);
   }, [cooldown]);
 
-  function focusBox(index: number) {
-    inputsRef.current[index]?.focus();
-    inputsRef.current[index]?.select();
-  }
-
-  function submitWhenComplete(next: string[]) {
-    if (next.join("").length === CODE_LENGTH && !submittedRef.current) {
-      submittedRef.current = true;
-      setPending(true);
-      // Deja que React pinte el último dígito antes de navegar.
-      requestAnimationFrame(() => formRef.current?.requestSubmit());
-    }
-  }
-
-  function handleChange(index: number, value: string) {
-    const digit = onlyDigits(value).slice(-1);
-    if (!digit && value !== "") return;
-    const next = [...digits];
-    next[index] = digit;
-    submittedRef.current = false;
-    setDigits(next);
-    if (digit && index < CODE_LENGTH - 1) focusBox(index + 1);
-    submitWhenComplete(next);
-  }
-
-  function handleKeyDown(
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) {
-    if (e.key === "Backspace" && !digits[index] && index > 0) {
-      e.preventDefault();
-      const next = [...digits];
-      next[index - 1] = "";
+  function handleCodeChange(next: string) {
+    setCode(next);
+    if (next.length === CODE_LENGTH) {
+      if (!submittedRef.current) {
+        submittedRef.current = true;
+        setPending(true);
+        // Deja que React pinte el último dígito antes de navegar.
+        requestAnimationFrame(() => formRef.current?.requestSubmit());
+      }
+    } else {
       submittedRef.current = false;
-      setDigits(next);
-      focusBox(index - 1);
     }
-    if (e.key === "ArrowLeft" && index > 0) focusBox(index - 1);
-    if (e.key === "ArrowRight" && index < CODE_LENGTH - 1)
-      focusBox(index + 1);
-  }
-
-  function handlePaste(
-    index: number,
-    e: React.ClipboardEvent<HTMLInputElement>
-  ) {
-    e.preventDefault();
-    const pasted = onlyDigits(e.clipboardData.getData("text"));
-    if (!pasted) return;
-    const next = [...digits];
-    for (let i = 0; i < pasted.length && index + i < CODE_LENGTH; i++) {
-      next[index + i] = pasted[i];
-    }
-    submittedRef.current = false;
-    setDigits(next);
-    const lastFilled = Math.min(index + pasted.length, CODE_LENGTH) - 1;
-    focusBox(lastFilled);
-    submitWhenComplete(next);
   }
 
   return (
@@ -133,43 +80,17 @@ export function VerifyForm({ email }: { email: string }) {
         )}
 
         <div className="space-y-2">
-          <label
-            id="otp-label"
-            className="text-sm font-medium"
-          >
+          <span id="otp-label" className="text-sm font-medium">
             Código de 6 dígitos
-          </label>
-          <div
-            role="group"
-            aria-labelledby="otp-label"
-            className="grid grid-cols-6 gap-2"
-          >
-            {digits.map((digit, i) => (
-              <input
-                key={i}
-                ref={(el) => {
-                  inputsRef.current[i] = el;
-                }}
-                type="text"
-                inputMode="numeric"
-                autoComplete={i === 0 ? "one-time-code" : "off"}
-                autoFocus={i === 0 && email !== ""}
-                maxLength={1}
-                required
-                aria-label={`Dígito ${i + 1} del código`}
-                value={digit}
-                onChange={(e) => handleChange(i, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(i, e)}
-                onPaste={(e) => handlePaste(i, e)}
-                onFocus={(e) => e.target.select()}
-                disabled={pending}
-                className={`flex h-13 w-full items-center justify-center border bg-background text-center text-xl font-semibold tabular-nums outline-none transition-colors placeholder:text-muted-foreground/40 focus-visible:border-foreground focus-visible:shadow-[0_0_0_1px_var(--foreground)] disabled:opacity-60 ${
-                  digit
-                    ? "border-foreground"
-                    : "border-input hover:border-foreground/40"
-                }`}
-              />
-            ))}
+          </span>
+          <div role="group" aria-labelledby="otp-label">
+            <PinInput
+              length={CODE_LENGTH}
+              value={code}
+              onChange={handleCodeChange}
+              disabled={pending}
+              autoFocus={email !== ""}
+            />
           </div>
           <input type="hidden" name="token" value={code} />
         </div>

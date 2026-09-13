@@ -1,5 +1,5 @@
-import { login } from "@/app/actions/auth";
 import { AuthShell } from "@/components/auth/auth-shell";
+import { LoginForms } from "@/components/auth/login-forms";
 import Link from "next/link";
 
 export default async function LoginPage({
@@ -12,7 +12,7 @@ export default async function LoginPage({
   return (
     <AuthShell
       title="Iniciá sesión"
-      subtitle="Continuá con tu libro personal."
+      subtitle="Entrá con tu código o tu contraseña."
       panelHeadline="Un libro claro para tu plata del mes."
       panelSupport="Ingresos, gastos y saldo en un solo lugar — sin ruido."
       footer={
@@ -54,41 +54,7 @@ export default async function LoginPage({
         </div>
       ) : null}
 
-      <form action={login} className="space-y-5">
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            placeholder="tu@email.com"
-            className="auth-field"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            Contraseña
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            placeholder="••••••••"
-            className="auth-field"
-          />
-        </div>
-
-        <button type="submit" data-pressable className="auth-submit">
-          Iniciar sesión
-        </button>
-      </form>
+      <LoginForms />
     </AuthShell>
   );
 }

@@ -1,21 +1,57 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/actions/auth";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { SideNav } from "@/components/layout/side-nav";
 import { LogOut, Wallet } from "lucide-react";
+import { redirect } from "next/navigation";
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function PinGate() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // El código rápido es obligatorio: sin PIN no se entra al libro.
+  if (user) {
+    const { data: pinRow } = await supabase
+      .from("user_pins")
+      .select("user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (!pinRow) {
+      redirect("/set-pin");
+    }
+  }
+
+  return null;
+}
+
+async function UserEmail() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.email) return null;
+  return (
+    <span className="hidden max-w-[180px] truncate text-xs text-muted-foreground sm:inline lg:max-w-[240px]">
+      {user.email}
+    </span>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex min-h-dvh bg-background">
+      <Suspense fallback={null}>
+        <PinGate />
+      </Suspense>
       <SideNav />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -36,11 +72,9 @@ export default async function DashboardLayout({
               Tu libro del mes
             </p>
             <div className="flex items-center gap-1.5">
-              {user?.email && (
-                <span className="hidden max-w-[180px] truncate text-xs text-muted-foreground sm:inline lg:max-w-[240px]">
-                  {user.email}
-                </span>
-              )}
+              <Suspense fallback={null}>
+                <UserEmail />
+              </Suspense>
               <form action={logout}>
                 <button
                   type="submit"

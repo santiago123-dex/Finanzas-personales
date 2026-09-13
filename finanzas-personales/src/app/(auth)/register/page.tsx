@@ -12,7 +12,7 @@ export default async function RegisterPage({
   return (
     <AuthShell
       title="Crear cuenta"
-      subtitle="Te vamos a pedir un código de 6 dígitos para entrar."
+      subtitle="Después vas a crear tu código rápido para entrar sin contraseña."
       panelHeadline="Empezá a ordenar tu plata hoy."
       panelSupport="Creá tu cuenta y llevá el mes con claridad."
       footer={
