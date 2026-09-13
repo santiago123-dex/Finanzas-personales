@@ -7,62 +7,24 @@ import type { Database } from "@/types/database";
 type TransactionInsert = Database["public"]["Tables"]["transactions"]["Insert"];
 type TransactionUpdate = Database["public"]["Tables"]["transactions"]["Update"];
 
-export async function getTransactions(year?: number, month?: number) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+type SummaryRow = {
+  amount: number | string;
+  type: string;
+  categories: unknown;
+};
 
-  if (!user) throw new Error("Not authenticated");
+function summarize(rows: SummaryRow[]) {
+  const totalExpenses =
+    rows
+      ?.filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0;
 
-  const now = new Date();
-  const targetYear = year ?? now.getFullYear();
-  const targetMonth = month ?? now.getMonth() + 1;
+  const totalIncome =
+    rows
+      ?.filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0;
 
-  const startDate = `${targetYear}-${String(targetMonth).padStart(2, "0")}-01`;
-  const endDate = new Date(targetYear, targetMonth, 0).toISOString().split("T")[0];
-
-  const { data, error } = await supabase
-    .from("transactions")
-    .select("*, categories(name, icon, color)")
-    .eq("user_id", user.id)
-    .gte("date", startDate)
-    .lte("date", endDate)
-    .order("date", { ascending: false });
-
-  if (error) throw error;
-  return data;
-}
-
-export async function getMonthlySummary(year?: number, month?: number) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("Not authenticated");
-
-  const now = new Date();
-  const targetYear = year ?? now.getFullYear();
-  const targetMonth = month ?? now.getMonth() + 1;
-
-  const startDate = `${targetYear}-${String(targetMonth).padStart(2, "0")}-01`;
-  const endDate = new Date(targetYear, targetMonth, 0).toISOString().split("T")[0];
-
-  const { data, error } = await supabase
-    .from("transactions")
-    .select("amount, type, categories(name, icon, color)")
-    .eq("user_id", user.id)
-    .gte("date", startDate)
-    .lte("date", endDate);
-
-  if (error) throw error;
-
-  const totalExpenses = data
-    ?.filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0;
-
-  const totalIncome = data
-    ?.filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + Number(t.amount), 0) ?? 0;
-
-  const expensesByCategory = data
+  const expensesByCategory = rows
     ?.filter((t) => t.type === "expense")
     .reduce(
       (acc, t) => {
@@ -99,6 +61,85 @@ export async function getMonthlySummary(year?: number, month?: number) {
         { name: string; icon: string; color: string; total: number }
       >
     ),
+  };
+}
+
+function monthRange(year?: number, month?: number) {
+  const now = new Date();
+  const targetYear = year ?? now.getFullYear();
+  const targetMonth = month ?? now.getMonth() + 1;
+
+  const startDate = `${targetYear}-${String(targetMonth).padStart(2, "0")}-01`;
+  const endDate = new Date(targetYear, targetMonth, 0).toISOString().split("T")[0];
+  return { startDate, endDate };
+}
+
+export async function getTransactions(year?: number, month?: number) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { startDate, endDate } = monthRange(year, month);
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*, categories(name, icon, color)")
+    .eq("user_id", user.id)
+    .gte("date", startDate)
+    .lte("date", endDate)
+    .order("date", { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getMonthlySummary(year?: number, month?: number) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { startDate, endDate } = monthRange(year, month);
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("amount, type, categories(name, icon, color)")
+    .eq("user_id", user.id)
+    .gte("date", startDate)
+    .lte("date", endDate);
+
+  if (error) throw error;
+
+  return summarize(data ?? []);
+}
+
+/**
+ * Datos de la home en UNA sola query: antes eran 2 roundtrips
+ * (getMonthlySummary + getTransactions, cada uno con su propio
+ * getUser). En el arranque de la PWA eso duplicaba la espera.
+ */
+export async function getDashboardData(year?: number, month?: number) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Not authenticated");
+
+  const { startDate, endDate } = monthRange(year, month);
+
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*, categories(name, icon, color)")
+    .eq("user_id", user.id)
+    .gte("date", startDate)
+    .lte("date", endDate)
+    .order("date", { ascending: false });
+
+  if (error) throw error;
+
+  return {
+    summary: summarize(data ?? []),
+    recent: (data ?? []).slice(0, 5),
   };
 }
 

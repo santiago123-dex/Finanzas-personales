@@ -1,5 +1,5 @@
-import { getMonthlySummary } from "@/app/actions/transactions";
-import { getTransactions } from "@/app/actions/transactions";
+import { Suspense } from "react";
+import { getDashboardData } from "@/app/actions/transactions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageShell } from "@/components/layout/page-shell";
 import { TrendingDown, TrendingUp, ArrowRight } from "lucide-react";
@@ -8,30 +8,34 @@ import { es } from "date-fns/locale";
 import { formatCurrency } from "@/lib/format";
 import Link from "next/link";
 
-export default async function HomePage() {
-  const now = new Date();
-  const [summary, recentTransactions] = await Promise.all([
-    getMonthlySummary(),
-    getTransactions(),
-  ]);
+function DashboardSkeleton() {
+  return (
+    <>
+      <div className="h-28 animate-pulse rounded-2xl bg-primary/20 sm:h-32" />
+      <div className="grid gap-5 lg:grid-cols-5">
+        <div className="space-y-5 lg:col-span-2">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="h-24 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-24 animate-pulse rounded-2xl bg-muted" />
+          </div>
+          <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+        </div>
+        <div className="h-56 animate-pulse rounded-2xl bg-muted lg:col-span-3" />
+      </div>
+    </>
+  );
+}
 
-  const recentFive = recentTransactions?.slice(0, 5) ?? [];
+async function DashboardContent() {
+  const { summary, recent } = await getDashboardData();
+
   const maxCat =
     summary.expensesByCategory.length > 0
       ? Math.max(...summary.expensesByCategory.map((c) => c.total))
       : 0;
 
   return (
-    <PageShell wide>
-      <div className="animate-rise space-y-0.5">
-        <p className="text-sm capitalize text-muted-foreground">
-          {format(now, "EEEE d 'de' MMMM", { locale: es })}
-        </p>
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-          {format(now, "MMMM yyyy", { locale: es })}
-        </h1>
-      </div>
-
+    <>
       <section
         className="animate-rise relative overflow-hidden rounded-2xl bg-primary px-5 py-6 text-primary-foreground shadow-lift sm:px-7 sm:py-8"
         style={{ animationDelay: "40ms" }}
@@ -134,7 +138,7 @@ export default async function HomePage() {
         </div>
 
         <div className="lg:col-span-3">
-          {recentFive.length > 0 ? (
+          {recent.length > 0 ? (
             <Card
               className="animate-rise shadow-soft ring-border/60"
               style={{ animationDelay: "160ms" }}
@@ -154,7 +158,7 @@ export default async function HomePage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-1">
-                {recentFive.map((t) => {
+                {recent.map((t) => {
                   const cat = t.categories as {
                     name: string;
                     icon: string;
@@ -218,6 +222,27 @@ export default async function HomePage() {
           )}
         </div>
       </div>
+    </>
+  );
+}
+
+export default function HomePage() {
+  const now = new Date();
+
+  return (
+    <PageShell wide>
+      <div className="animate-rise space-y-0.5">
+        <p className="text-sm capitalize text-muted-foreground">
+          {format(now, "EEEE d 'de' MMMM", { locale: es })}
+        </p>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          {format(now, "MMMM yyyy", { locale: es })}
+        </h1>
+      </div>
+
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardContent />
+      </Suspense>
     </PageShell>
   );
 }

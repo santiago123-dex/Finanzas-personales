@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Instrument_Serif, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/toast";
+import { RegisterSW } from "@/components/pwa/register-sw";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -24,6 +25,13 @@ export const metadata: Metadata = {
   title: "Finanzas Personales",
   description: "Gestiona tus gastos, ingresos y saldo mensual",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -56,6 +64,7 @@ export default function RootLayout({
       <body className="min-h-dvh flex flex-col font-sans">
         {children}
         <Toaster />
+        <RegisterSW />
       </body>
     </html>
   );
