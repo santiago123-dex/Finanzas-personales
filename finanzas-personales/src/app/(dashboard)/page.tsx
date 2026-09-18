@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getDashboardData } from "@/app/actions/transactions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageShell } from "@/components/layout/page-shell";
+import { ExpandableTransaction } from "@/components/transactions/expandable-transaction";
 import { TrendingDown, TrendingUp, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -165,32 +166,17 @@ async function DashboardContent() {
                     color: string;
                   };
                   return (
-                    <div
+                    <ExpandableTransaction
                       key={t.id}
-                      className="flex items-center justify-between gap-3 rounded-xl px-1 py-2.5 transition-colors hover:bg-muted/50"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted text-base sm:h-10 sm:w-10">
-                          <span aria-hidden>{cat.icon}</span>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium">
-                            {t.description || cat.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(t.date), "dd MMM", { locale: es })}
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        className={`shrink-0 text-sm font-semibold tabular-nums sm:text-base ${
-                          t.type === "expense" ? "text-expense" : "text-income"
-                        }`}
-                      >
-                        {t.type === "expense" ? "−" : "+"}
-                        {formatCurrency(Number(t.amount))}
-                      </span>
-                    </div>
+                      type={t.type}
+                      amount={t.amount}
+                      description={t.description}
+                      dateLabel={format(new Date(t.date), "dd MMM", {
+                        locale: es,
+                      })}
+                      category={cat}
+                      variant="plain"
+                    />
                   );
                 })}
               </CardContent>

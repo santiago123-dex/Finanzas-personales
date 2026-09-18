@@ -1,11 +1,11 @@
 import { getTransactions } from "@/app/actions/transactions";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageShell } from "@/components/layout/page-shell";
+import { ExpandableTransaction } from "@/components/transactions/expandable-transaction";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Link from "next/link";
 import { Plus, Inbox } from "lucide-react";
-import { formatCurrency } from "@/lib/format";
 
 export default async function TransactionsPage() {
   const transactions = await getTransactions();
@@ -77,34 +77,20 @@ export default async function TransactionsPage() {
                       color: string;
                     };
                     return (
-                      <div
+                      <ExpandableTransaction
                         key={t.id}
-                        className={`flex min-h-14 items-center justify-between gap-3 px-3.5 py-3.5 ${
-                          i > 0 ? "border-t border-border/50" : ""
-                        }`}
-                      >
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-lg">
-                            <span aria-hidden>{cat.icon}</span>
-                          </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">
-                              {t.description || cat.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {cat.name}
-                            </p>
-                          </div>
-                        </div>
-                        <span
-                          className={`shrink-0 text-sm font-semibold tabular-nums ${
-                            t.type === "expense" ? "text-expense" : "text-income"
-                          }`}
-                        >
-                          {t.type === "expense" ? "−" : "+"}
-                          {formatCurrency(Number(t.amount))}
-                        </span>
-                      </div>
+                        type={t.type}
+                        amount={t.amount}
+                        description={t.description}
+                        dateLabel={format(
+                          new Date(t.date + "T12:00:00"),
+                          "dd MMM",
+                          { locale: es }
+                        )}
+                        category={cat}
+                        variant="list"
+                        showDivider={i > 0}
+                      />
                     );
                   })}
                 </div>
