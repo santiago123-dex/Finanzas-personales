@@ -64,6 +64,14 @@ function summarize(rows: SummaryRow[]) {
   };
 }
 
+function cumulativeBalance(rows: Pick<SummaryRow, "amount" | "type">[]) {
+  return rows.reduce(
+    (sum, t) =>
+      sum + (t.type === "income" ? Number(t.amount) : -Number(t.amount)),
+    0
+  );
+}
+
 function monthRange(year?: number, month?: number) {
   const now = new Date();
   const targetYear = year ?? now.getFullYear();
@@ -102,22 +110,30 @@ export async function getMonthlySummary(year?: number, month?: number) {
 
   const { startDate, endDate } = monthRange(year, month);
 
+  // Traemos todo el historial hasta fin del mes pedido para que el saldo
+  // sea acumulado y no se reinicie a cero cada mes.
   const { data, error } = await supabase
     .from("transactions")
-    .select("amount, type, categories(name, icon, color)")
+    .select("amount, type, date, categories(name, icon, color)")
     .eq("user_id", user.id)
-    .gte("date", startDate)
     .lte("date", endDate);
 
   if (error) throw error;
 
-  return summarize(data ?? []);
+  const rows = data ?? [];
+  const monthlyRows = rows.filter((t) => t.date >= startDate);
+  const monthly = summarize(monthlyRows);
+
+  return {
+    ...monthly,
+    balance: cumulativeBalance(rows),
+  };
 }
 
 /**
- * Datos de la home en UNA sola query: antes eran 2 roundtrips
- * (getMonthlySummary + getTransactions, cada uno con su propio
- * getUser). En el arranque de la PWA eso duplicaba la espera.
+ * Datos de la home en UNA sola query: trae el historial acumulado hasta
+ * fin del mes pedido y deriva en JS el resumen mensual + saldo total.
+ * Así el saldo no se reinicia cada mes: solo baja si gastás.
  */
 export async function getDashboardData(year?: number, month?: number) {
   const supabase = await createClient();
@@ -131,15 +147,21 @@ export async function getDashboardData(year?: number, month?: number) {
     .from("transactions")
     .select("*, categories(name, icon, color)")
     .eq("user_id", user.id)
-    .gte("date", startDate)
     .lte("date", endDate)
     .order("date", { ascending: false });
 
   if (error) throw error;
 
+  const rows = data ?? [];
+  const monthlyRows = rows.filter((t) => t.date >= startDate);
+  const monthly = summarize(monthlyRows);
+
   return {
-    summary: summarize(data ?? []),
-    recent: (data ?? []).slice(0, 5),
+    summary: {
+      ...monthly,
+      balance: cumulativeBalance(rows),
+    },
+    recent: monthlyRows.slice(0, 5),
   };
 }
 

@@ -149,10 +149,13 @@ export default function SummaryPage() {
         <>
           <section className="animate-rise overflow-hidden rounded-2xl bg-primary px-5 py-6 text-primary-foreground shadow-lift sm:px-7 sm:py-8">
             <p className="text-sm font-medium text-primary-foreground/80">
-              Saldo del mes
+              Saldo acumulado
             </p>
             <p className="font-display text-balance-hero mt-2 tabular-nums">
               {formatCurrency(data.balance)}
+            </p>
+            <p className="mt-1 text-xs text-primary-foreground/70">
+              Hasta {format(currentDate, "MMMM yyyy", { locale: es })}
             </p>
           </section>
 

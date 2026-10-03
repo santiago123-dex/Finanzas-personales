@@ -46,10 +46,13 @@ async function DashboardContent() {
           aria-hidden
         />
         <p className="relative text-sm font-medium text-primary-foreground/80">
-          Saldo disponible
+          Saldo disponible acumulado
         </p>
         <p className="font-display text-balance-hero relative mt-2 tabular-nums">
           {formatCurrency(summary.balance)}
+        </p>
+        <p className="relative mt-1 text-xs text-primary-foreground/70">
+          Incluye todos tus movimientos hasta este mes
         </p>
       </section>
 
