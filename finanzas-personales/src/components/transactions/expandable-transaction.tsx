@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronDown, Trash2, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { deleteTransaction } from "@/app/actions/transactions";
 
 type CategoryInfo = {
   name: string;
@@ -12,6 +14,7 @@ type CategoryInfo = {
 };
 
 type ExpandableTransactionProps = {
+  id?: string;
   type: "expense" | "income" | string;
   amount: number | string;
   description: string | null;
@@ -23,6 +26,7 @@ type ExpandableTransactionProps = {
 };
 
 export function ExpandableTransaction({
+  id,
   type,
   amount,
   description,
@@ -32,6 +36,9 @@ export function ExpandableTransaction({
   showDivider = false,
 }: ExpandableTransactionProps) {
   const [expanded, setExpanded] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
 
   const title = description?.trim() ? description.trim() : category.name;
   const hasCustomDescription =
@@ -103,6 +110,51 @@ export function ExpandableTransaction({
               </p>
             )}
           </div>
+          {id &&
+            (confirming ? (
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={async () => {
+                    setDeleting(true);
+                    try {
+                      await deleteTransaction(id);
+                      router.refresh();
+                    } catch (e) {
+                      console.error(e);
+                      setDeleting(false);
+                    }
+                  }}
+                  className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-destructive px-3 text-xs font-semibold text-white transition-opacity disabled:opacity-60 dark:text-black"
+                >
+                  {deleting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                  )}
+                  {deleting ? "Borrando..." : "Sí, borrar"}
+                </button>
+                <button
+                  type="button"
+                  disabled={deleting}
+                  onClick={() => setConfirming(false)}
+                  className="inline-flex min-h-9 items-center justify-center rounded-xl bg-muted px-3 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground disabled:opacity-60"
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirming(true)}
+                className="mt-2 inline-flex min-h-9 items-center gap-1.5 rounded-xl px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-expense/10 hover:text-expense"
+                aria-label="Borrar movimiento"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Borrar
+              </button>
+            ))}
         </div>
       )}
     </div>

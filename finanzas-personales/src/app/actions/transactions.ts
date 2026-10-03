@@ -181,6 +181,7 @@ export async function createTransaction(
   if (error) throw error;
   revalidatePath("/");
   revalidatePath("/summary");
+  revalidatePath("/transactions");
 }
 
 export async function updateTransaction(id: string, transaction: TransactionUpdate) {
@@ -198,6 +199,7 @@ export async function updateTransaction(id: string, transaction: TransactionUpda
   if (error) throw error;
   revalidatePath("/");
   revalidatePath("/summary");
+  revalidatePath("/transactions");
 }
 
 export async function deleteTransaction(id: string) {
@@ -215,4 +217,5 @@ export async function deleteTransaction(id: string) {
   if (error) throw error;
   revalidatePath("/");
   revalidatePath("/summary");
+  revalidatePath("/transactions");
 }

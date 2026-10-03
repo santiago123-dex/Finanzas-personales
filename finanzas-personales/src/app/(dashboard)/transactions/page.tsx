@@ -79,6 +79,7 @@ export default async function TransactionsPage() {
                     return (
                       <ExpandableTransaction
                         key={t.id}
+                        id={t.id}
                         type={t.type}
                         amount={t.amount}
                         description={t.description}
