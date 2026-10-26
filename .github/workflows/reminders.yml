@@ -16,9 +16,14 @@ jobs:
           APP_URL: ${{ secrets.APP_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          # Tolera espacios o "/" sobrantes al final de APP_URL.
+          url=$(echo "$APP_URL" | tr -d '[:space:]')
+          url="${url%/}/api/cron/reminders"
+          echo "Host: $(echo "$url" | cut -d/ -f3)"
           body=$(curl --silent --show-error --max-time 60 \
+            --write-out '\nHTTP %{http_code}' \
             -H "Authorization: Bearer $CRON_SECRET" \
-            "$APP_URL/api/cron/reminders")
+            "$url")
           echo "Respuesta: $body"
           # Un redirect (login de Vercel) o un error no deben contar como éxito.
           echo "$body" | grep -q '"ok":true'
