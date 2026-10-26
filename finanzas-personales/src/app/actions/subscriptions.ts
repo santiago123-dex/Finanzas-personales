@@ -29,6 +29,7 @@ export async function createSubscription(input: {
   amount: number;
   due_day: number;
   category_id: string;
+  notify_hour: number;
 }) {
   const { supabase, user } = await requireUser();
   // Si el día de este mes ya pasó, el ciclo arranca en el mes siguiente
@@ -40,6 +41,17 @@ export async function createSubscription(input: {
     user_id: user.id,
     last_paid_on: alreadyPassed ? today : null,
   });
+  if (error) throw error;
+  revalidatePath("/subscriptions");
+}
+
+export async function updateNotifyHour(id: string, notifyHour: number) {
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase
+    .from("recurring_payments")
+    .update({ notify_hour: notifyHour })
+    .eq("id", id)
+    .eq("user_id", user.id);
   if (error) throw error;
   revalidatePath("/subscriptions");
 }

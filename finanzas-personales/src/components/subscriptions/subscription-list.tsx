@@ -6,7 +6,9 @@ import { Check, Trash2 } from "lucide-react";
 import {
   deleteSubscription,
   markSubscriptionPaid,
+  updateNotifyHour,
 } from "@/app/actions/subscriptions";
+import { HourSelect } from "./hour-select";
 import { subscriptionStatus } from "@/lib/subscriptions";
 import { formatCurrency } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +19,7 @@ type Sub = {
   amount: number | string;
   due_day: number;
   last_paid_on: string | null;
+  notify_hour: number;
   categories: { name: string; icon: string } | null;
 };
 
@@ -60,6 +63,15 @@ function Item({ sub, today }: { sub: Sub; today: string }) {
             {formatCurrency(Number(sub.amount))}
           </p>
         </div>
+        <label className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+          Aviso a las
+          <HourSelect
+            value={sub.notify_hour}
+            disabled={isPending}
+            onChange={(h) => run(() => updateNotifyHour(sub.id, h))}
+            className="h-10 rounded-lg border border-input bg-background px-2 text-sm text-foreground"
+          />
+        </label>
         <div className="grid grid-cols-[1fr_auto] gap-2">
           <button
             type="button"

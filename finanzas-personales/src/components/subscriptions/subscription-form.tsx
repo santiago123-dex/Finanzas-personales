@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createSubscription } from "@/app/actions/subscriptions";
+import { HourSelect } from "./hour-select";
 
 type Category = { id: string; name: string; icon: string };
 
@@ -16,6 +17,7 @@ export function SubscriptionForm({ categories }: { categories: Category[] }) {
   const [amount, setAmount] = useState("");
   const [dueDay, setDueDay] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [notifyHour, setNotifyHour] = useState(9);
 
   const options = categories.filter((c) => c.name !== "Ingresos");
   const valid = name.trim() && Number(amount) > 0 && dueDay && categoryId;
@@ -29,6 +31,7 @@ export function SubscriptionForm({ categories }: { categories: Category[] }) {
         amount: Number(amount),
         due_day: Number(dueDay),
         category_id: categoryId,
+        notify_hour: notifyHour,
       });
       setName("");
       setAmount("");
@@ -72,6 +75,16 @@ export function SubscriptionForm({ categories }: { categories: Category[] }) {
           className={inputClass}
         />
       </div>
+      <label className="flex items-center justify-between gap-3 text-sm">
+        <span className="text-muted-foreground">
+          Avisarme un día antes y el mismo día a las
+        </span>
+        <HourSelect
+          value={notifyHour}
+          onChange={setNotifyHour}
+          className="h-11 rounded-xl border border-input bg-background px-3 text-base md:text-sm"
+        />
+      </label>
       <div className="flex flex-wrap gap-2">
         {options.map((cat) => (
           <button

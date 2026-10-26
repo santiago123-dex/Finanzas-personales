@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import webpush from "web-push";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { addDays, dueDateInMonth, todayInBogota } from "@/lib/subscriptions";
+import { dueReminder, hourInBogota, todayInBogota } from "@/lib/subscriptions";
 
-// Vercel Cron llama esto una vez al día con Authorization: Bearer CRON_SECRET.
+// Un GitHub Action lo llama cada hora con Authorization: Bearer CRON_SECRET.
+// Cada pago avisa un día antes y el mismo día, desde la hora que eligió.
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
@@ -22,29 +23,31 @@ export async function GET(request: NextRequest) {
   );
 
   const admin = createAdminClient();
-  const tomorrow = addDays(todayInBogota(), 1);
-  const tomorrowMonth = tomorrow.slice(0, 7);
+  const today = todayInBogota();
+  const hour = hourInBogota();
 
   const { data: subs, error } = await admin.from("recurring_payments").select("*");
   if (error) {
     return NextResponse.json({ error: "No se pudo leer" }, { status: 500 });
   }
 
-  const due = (subs ?? []).filter(
-    (s) =>
-      dueDateInMonth(tomorrow, s.due_day) === tomorrow &&
-      !(s.last_paid_on && s.last_paid_on.slice(0, 7) === tomorrowMonth)
-  );
-
+  let due = 0;
   let sent = 0;
-  for (const sub of due) {
+  for (const sub of subs ?? []) {
+    const reminder = dueReminder(sub, today, hour);
+    if (!reminder) continue;
+    due++;
+
     const { data: devices } = await admin
       .from("push_subscriptions")
       .select("*")
       .eq("user_id", sub.user_id);
 
     const payload = JSON.stringify({
-      title: `Mañana vence: ${sub.name}`,
+      title:
+        reminder.kind === "same"
+          ? `Hoy vence: ${sub.name}`
+          : `Mañana vence: ${sub.name}`,
       body: `Pago de $${Number(sub.amount).toLocaleString("es-CO")}`,
       url: "/subscriptions",
     });
@@ -63,7 +66,14 @@ export async function GET(request: NextRequest) {
         }
       }
     }
+
+    // Sin dispositivos no se marca: llegará en cuanto se activen los avisos.
+    if (!devices?.length) continue;
+    await admin
+      .from("recurring_payments")
+      .update({ last_reminder: reminder.key })
+      .eq("id", sub.id);
   }
 
-  return NextResponse.json({ ok: true, due: due.length, sent });
+  return NextResponse.json({ ok: true, hour, due, sent });
 }
