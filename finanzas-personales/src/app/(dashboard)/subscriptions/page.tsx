@@ -26,7 +26,7 @@ export default function SubscriptionsPage() {
       <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
         Pagos recurrentes
       </h1>
-      <NotifyButton />
+      <NotifyButton publicKey={process.env.NEXT_VAPID_PUBLIC_KEY ?? ""} />
       <Suspense
         fallback={<div className="h-32 animate-pulse rounded-2xl bg-muted" />}
       >

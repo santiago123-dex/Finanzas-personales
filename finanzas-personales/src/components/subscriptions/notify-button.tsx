@@ -12,7 +12,7 @@ function urlBase64ToUint8Array(base64: string) {
   return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
-export function NotifyButton() {
+export function NotifyButton({ publicKey }: { publicKey: string }) {
   const [state, setState] = useState<State>("checking");
   const [busy, setBusy] = useState(false);
 
@@ -46,7 +46,7 @@ export function NotifyButton() {
         (await reg.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(
-            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""
+            publicKey
           ),
         }));
       const json = sub.toJSON();
