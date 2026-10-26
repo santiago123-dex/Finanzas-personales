@@ -16,19 +16,28 @@ export async function GET(request: NextRequest) {
   if (!publicKey || !privateKey) {
     return NextResponse.json({ error: "Faltan claves VAPID" }, { status: 500 });
   }
-  webpush.setVapidDetails(
-    process.env.VAPID_SUBJECT ?? "mailto:admin@example.com",
-    publicKey,
-    privateKey
-  );
-
-  const admin = createAdminClient();
+  let admin: ReturnType<typeof createAdminClient>;
+  try {
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT ?? "mailto:admin@example.com",
+      publicKey,
+      privateKey
+    );
+    admin = createAdminClient();
+  } catch (err) {
+    // Sin esto, una variable mal pegada en Vercel da un 500 vacío.
+    const message = err instanceof Error ? err.message : "error de configuración";
+    return NextResponse.json({ error: `Configuración: ${message}` }, { status: 500 });
+  }
   const today = todayInBogota();
   const hour = hourInBogota();
 
   const { data: subs, error } = await admin.from("recurring_payments").select("*");
   if (error) {
-    return NextResponse.json({ error: "No se pudo leer" }, { status: 500 });
+    return NextResponse.json(
+      { error: `No se pudo leer los pagos: ${error.message}` },
+      { status: 500 }
+    );
   }
 
   let due = 0;
