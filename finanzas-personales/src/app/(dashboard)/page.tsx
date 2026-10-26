@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { formatCurrency } from "@/lib/format";
 import Link from "next/link";
+import { PendingBanner } from "@/components/pending/pending-banner";
 
 function DashboardSkeleton() {
   return (
@@ -229,6 +230,10 @@ export default function HomePage() {
           {format(now, "MMMM yyyy", { locale: es })}
         </h1>
       </div>
+
+      <Suspense fallback={null}>
+        <PendingBanner />
+      </Suspense>
 
       <Suspense fallback={<DashboardSkeleton />}>
         <DashboardContent />

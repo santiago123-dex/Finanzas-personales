@@ -4,6 +4,7 @@ import {
   Tag,
   BarChart3,
   Plus,
+  CalendarClock,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,6 +19,7 @@ export const navItems: NavItem[] = [
   { href: "/", label: "Inicio", icon: LayoutDashboard },
   { href: "/transactions", label: "Movimientos", icon: ArrowRightLeft },
   { href: "/transactions/new", label: "Nuevo", icon: Plus, primary: true },
+  { href: "/subscriptions", label: "Pagos", icon: CalendarClock },
   { href: "/categories", label: "Categorías", icon: Tag },
   { href: "/summary", label: "Resumen", icon: BarChart3 },
 ];
